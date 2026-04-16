@@ -1,2 +1,0 @@
-class TaskNotFound(Exception):
-    pass
