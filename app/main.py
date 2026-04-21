@@ -5,7 +5,7 @@ from app.core.config import settings
 
 
 app = FastAPI(
-    title="TODO API",
+    title="TASK-MANAGER",
     debug=settings.debug
 )
 
