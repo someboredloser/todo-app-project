@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from app.dependencies.auth import get_current_user
 from app.dependencies.db import get_task_service
 from app.exception.task import TaskNotFound
 from app.schemas.task import TaskCreateSchema, TaskSchema, TaskUpdateSchema
@@ -9,16 +10,18 @@ router = APIRouter(prefix="/tasks", tags=["tasks"])
 
 @router.get("", response_model=list[TaskSchema])
 def read_task(
+    user = Depends(get_current_user),
     task_services: TaskService = Depends(get_task_service)
 ) -> list[TaskSchema]:
-    return task_services.list_tasks()
+    return task_services.list_tasks(user=user)
 
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=TaskSchema)
 def create_task(
-    payload: TaskCreateSchema, 
+    payload: TaskCreateSchema,
+    user = Depends(get_current_user),
     task_services: TaskService = Depends(get_task_service)
 ) -> TaskSchema:
-    return task_services.create_task(task_create=payload)
+    return task_services.create_task(payload, user)
     
 @router.patch("/{task_id}", response_model=TaskSchema)
 def update_task(

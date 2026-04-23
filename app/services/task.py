@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from app.exception.task import TaskNotFound
+from app.models.user import UserORM
 from app.repositories.task import TaskRepository
 from app.schemas.task import TaskCreateSchema, TaskSchema, TaskUpdateSchema
 
@@ -9,12 +10,15 @@ class TaskService:
         self.db = db
         self.task_repository = TaskRepository(db=db)
         
-    def list_tasks(self) -> list[TaskSchema]:
-        tasks_orm = self.task_repository.get_all()
+    def list_tasks(self, user: UserORM) -> list[TaskSchema]:
+        tasks_orm = self.task_repository.get_by_user(user_id=user.id)
         return [TaskSchema.model_validate(task) for task in tasks_orm]
     
-    def create_task(self, task_create: TaskCreateSchema) -> TaskSchema:
-        create_tasks_orm = self.task_repository.create_task(title=task_create.title)
+    def create_task(self, task_create: TaskCreateSchema, user: UserORM) -> TaskSchema:
+        create_tasks_orm = self.task_repository.create_task(
+            title=task_create.title,
+            user_id=user.id
+        )
         self.db.commit()
         return TaskSchema.model_validate(create_tasks_orm)
     
