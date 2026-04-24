@@ -14,7 +14,7 @@ class AuthService:
     def register(self, email: str, password: str) -> UserSchema:
         existing_user = self.user_repository.get_by_email(email)
         if existing_user:
-            HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User already exists")
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User already exists")
 
         hashed = hash_password(password=password)
 
@@ -27,7 +27,7 @@ class AuthService:
         user = self.user_repository.get_by_email(email=email)
 
         if not user or not verify_password(password=password, hashed=user.password):
-            HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
         access = create_access_token({"sub": user.id})
         refresh = create_refresh_token({"sub": user.id})
