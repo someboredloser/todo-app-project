@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.core.security import create_access_token, create_refresh_token, hash_password, verify_password
 from app.repositories.user import UserRepository
 from app.schemas.user import TokenSchema, UserSchema
-
+from sqlalchemy.exc import SQLAlchemyError
 
 class AuthService:
     def __init__(self, db: Session):
@@ -19,7 +19,11 @@ class AuthService:
         hashed = hash_password(password=password)
 
         user = self.user_repository.create(email=email, password=hashed)
-        self.db.commit()
+        try:
+            self.db.commit()
+        except SQLAlchemyError:
+            self.db.rollback()
+            raise
 
         return UserSchema.model_validate(user)
 

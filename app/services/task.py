@@ -5,7 +5,7 @@ from app.exception.task import TaskNotFound
 from app.models.user import UserORM
 from app.repositories.task import TaskRepository
 from app.schemas.task import TaskCreateSchema, TaskSchema, TaskUpdateSchema
-
+from sqlalchemy.exc import SQLAlchemyError
 
 class TaskService:
     def __init__(self, db: Session) -> None:
@@ -21,7 +21,11 @@ class TaskService:
             title=task_create.title,
             user_id=user.id
         )
-        self.db.commit()
+        try:
+            self.db.commit()
+        except SQLAlchemyError:
+            self.db.rollback()
+            raise
         return TaskSchema.model_validate(create_tasks_orm)
     
     def update_task(
@@ -45,7 +49,11 @@ class TaskService:
         if task_update.completed is not None:
             task_for_update.completed = task_update.completed    
             
-        self.db.commit()
+        try:
+            self.db.commit()
+        except SQLAlchemyError:
+            self.db.rollback()
+            raise
         
         return TaskSchema.model_validate(task_for_update)
     
@@ -61,4 +69,8 @@ class TaskService:
             )
             
         self.task_repository.delete_task(task_for_delete)
-        self.db.commit()
+        try:
+            self.db.commit()
+        except SQLAlchemyError:
+            self.db.rollback()
+            raise
