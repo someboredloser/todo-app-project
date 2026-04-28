@@ -117,9 +117,16 @@ Docs: http://localhost:8080/docs
 ## 🔧 Environment
 
 ```
+ENV=dev
+DEBUG=True
+
 DATABASE_URL=postgresql+psycopg://postgres:admin@db:5432/postgres
+
 SECRET_KEY=supersecretkey
 ALGORITHM=HS256
+
+ACCESS_TOKEN_EXPIRE_MINUTES=15
+REFRESH_TOKEN_EXPIRE_DAYS=7
 ```
 
 ---
@@ -127,6 +134,7 @@ ALGORITHM=HS256
 ## 🗄 Migrations
 
 ```bash
+alembic revision --autogenerate -m "init"
 alembic upgrade head
 ```
 
