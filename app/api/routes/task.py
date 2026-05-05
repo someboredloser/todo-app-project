@@ -8,7 +8,7 @@ from app.services.task import TaskService
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
 
-@router.get("", response_model=list[TaskSchema])
+
 @router.get("", response_model=list[TaskSchema])
 def read_task(
     page: int = 1,
